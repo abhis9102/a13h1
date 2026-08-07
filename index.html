@@ -242,6 +242,14 @@ code, kbd { font-family: var(--mono); }
    HERO: an HTTP exchange whose response body is the person
    ============================================================ */
 .hero { padding: 72px 0 0; display: flex; flex-direction: column; gap: 32px; }
+.hero-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.hero-head .dl { margin-top: 10px; }
 .hero h1 {
   font-size: var(--t-3xl);
   line-height: 1.02;
@@ -818,8 +826,16 @@ footer {
 
     <!-- ===================== HERO ===================== -->
     <section class="hero">
-      <div>
+      <div class="hero-head">
         <h1>Abhi Sharma<em>Offensive Security Engineer</em></h1>
+        <a class="dl" href="Abhi-Sharma-CV.pdf" download>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 3a1 1 0 0 1 1 1v9.6l3.3-3.3a1 1 0 0 1 1.4 1.4l-5 5a1 1 0 0
+                     1-1.4 0l-5-5a1 1 0 1 1 1.4-1.4L11 13.6V4a1 1 0 0 1 1-1zM4
+                     19a1 1 0 0 1 1-1h14a1 1 0 0 1 0 2H5a1 1 0 0 1-1-1z"/>
+          </svg>
+          Download CV <span>PDF</span>
+        </a>
       </div>
       <p class="hero-sub">
         I break authorisation. Four years of commercial penetration testing, independent
@@ -1343,16 +1359,8 @@ footer {
         </p>
       </div>
 
-      <a class="dl" href="Abhi-Sharma-CV.pdf" download>
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12 3a1 1 0 0 1 1 1v9.6l3.3-3.3a1 1 0 0 1 1.4 1.4l-5 5a1 1 0 0
-                   1-1.4 0l-5-5a1 1 0 1 1 1.4-1.4L11 13.6V4a1 1 0 0 1 1-1zM4
-                   19a1 1 0 0 1 1-1h14a1 1 0 0 1 0 2H5a1 1 0 0 1-1-1z"/>
-        </svg>
-        Download CV <span>PDF, 2 pages</span>
-      </a>
-
       <div class="contact-grid">
+        <dl class="crow"><dt>CV</dt><dd><a href="Abhi-Sharma-CV.pdf" download>Abhi-Sharma-CV.pdf</a> · 2 pages</dd></dl>
         <dl class="crow"><dt>Email</dt><dd><a href="mailto:abhis9102@gmail.com">abhis9102@gmail.com</a></dd></dl>
         <dl class="crow"><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/a13h1" target="_blank" rel="noopener">linkedin.com/in/a13h1</a></dd></dl>
         <dl class="crow"><dt>HackerOne</dt><dd><a href="https://hackerone.com/root_a13h1" target="_blank" rel="noopener">hackerone.com/root_a13h1</a></dd></dl>
