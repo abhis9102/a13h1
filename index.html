@@ -1,0 +1,1332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abhi Sharma — Offensive Security Engineer</title>
+<meta name="description" content="Offensive Security Engineer specialising in web application and API security, broken access control, and business logic flaws. 500+ confirmed vulnerabilities reported.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>🛰️</text></svg>">
+</head>
+<body>
+<style>
+/* ============================================================
+   TOKENS: light palette on bare :root, redefined for the two
+   dark states. Never declare a colour outside this block.
+   ============================================================ */
+:root {
+  --ground:    #F4F6F9;
+  --surface:   #FFFFFF;
+  --surface-2: #EDF1F6;
+  --line:      #D6DEE8;
+  --line-soft: #E4EAF1;
+  --text:      #10151C;
+  --text-dim:  #4C5A6C;
+  --text-mute: #7A8798;
+  --accent:    #1668C9;
+  --accent-dim:#5A94D6;
+  --accent-wash:#E4EDF9;
+  --crit:      #C8203A;
+  --high:      #C2600F;
+  --med:       #96700A;
+  --ok:        #1D7A4D;
+  --shadow:    0 1px 2px rgba(16,21,28,.06), 0 8px 24px -12px rgba(16,21,28,.14);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:    #0F1319;
+    --surface:   #161B23;
+    --surface-2: #1C232D;
+    --line:      #262F3B;
+    --line-soft: #1F2833;
+    --text:      #DCE3ED;
+    --text-dim:  #A3B0C2;
+    --text-mute: #6F7D90;
+    --accent:    #5AA9FF;
+    --accent-dim:#3D6FA8;
+    --accent-wash:#152537;
+    --crit:      #FF4D5E;
+    --high:      #FF9445;
+    --med:       #FFC94D;
+    --ok:        #4ADE9B;
+    --shadow:    0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"] {
+  --ground:    #0F1319;
+  --surface:   #161B23;
+  --surface-2: #1C232D;
+  --line:      #262F3B;
+  --line-soft: #1F2833;
+  --text:      #DCE3ED;
+  --text-dim:  #A3B0C2;
+  --text-mute: #6F7D90;
+  --accent:    #5AA9FF;
+  --accent-dim:#3D6FA8;
+  --accent-wash:#152537;
+  --crit:      #FF4D5E;
+  --high:      #FF9445;
+  --med:       #FFC94D;
+  --ok:        #4ADE9B;
+  --shadow:    0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+
+/* ============================================================
+   TYPE + BASE
+   ============================================================ */
+:root {
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo,
+          Consolas, "Liberation Mono", monospace;
+  --prose: Georgia, "Iowan Old Style", "Source Serif Pro", Cambria, serif;
+  --t-xs: .6875rem;  /* 11 */
+  --t-sm: .8125rem;  /* 13 */
+  --t-md: .9375rem;  /* 15 */
+  --t-lg: 1.125rem;  /* 18 */
+  --t-xl: 1.5rem;    /* 24 */
+  --t-2xl: 2.125rem; /* 34 */
+  --t-3xl: 3.5rem;   /* 56 */
+  --rail: 208px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: var(--t-md);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  font-variant-ligatures: none;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 600; }
+p { margin: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+code, kbd { font-family: var(--mono); }
+
+/* ============================================================
+   SHELL: fixed rail + main column
+   ============================================================ */
+.shell {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  max-width: 1180px;
+  margin: 0 auto;
+  gap: 0;
+}
+.rail {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  padding: 40px 24px 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  border-right: 1px solid var(--line-soft);
+}
+.rail-mark {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rail-mark b {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+.rail-mark span {
+  font-size: var(--t-xs);
+  color: var(--text-mute);
+}
+.rail nav ul { display: flex; flex-direction: column; gap: 1px; }
+.rail nav a {
+  display: block;
+  padding: 5px 8px;
+  margin-left: -8px;
+  font-size: var(--t-sm);
+  color: var(--text-mute);
+  border-radius: 3px;
+  transition: color .15s, background .15s;
+}
+.rail nav a:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
+.rail nav a[aria-current="true"] { color: var(--accent); background: var(--accent-wash); }
+.rail-foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--t-xs);
+  color: var(--text-mute);
+}
+.rail-foot a { color: var(--text-dim); }
+
+.main {
+  min-width: 0;
+  padding: 0 40px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 104px;
+}
+
+/* section chrome */
+.sec { display: flex; flex-direction: column; gap: 28px; scroll-margin-top: 40px; }
+.sec-head { display: flex; flex-direction: column; gap: 10px; }
+.eyebrow {
+  font-size: var(--t-xs);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.eyebrow::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line-soft);
+}
+.sec h2 {
+  font-size: var(--t-xl);
+  letter-spacing: -.02em;
+}
+.lede {
+  font-family: var(--prose);
+  font-size: var(--t-lg);
+  line-height: 1.62;
+  color: var(--text-dim);
+  max-width: 64ch;
+}
+
+/* ============================================================
+   HERO: an HTTP exchange whose response body is the person
+   ============================================================ */
+.hero { padding: 72px 0 0; display: flex; flex-direction: column; gap: 32px; }
+.hero h1 {
+  font-size: var(--t-3xl);
+  line-height: 1.02;
+  letter-spacing: -.045em;
+  font-weight: 600;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--text-mute);
+  display: block;
+  font-size: var(--t-2xl);
+  letter-spacing: -.03em;
+  margin-top: 6px;
+}
+.hero-sub {
+  font-family: var(--prose);
+  font-size: var(--t-lg);
+  line-height: 1.6;
+  color: var(--text-dim);
+  max-width: 58ch;
+}
+
+.exchange {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  font-size: var(--t-sm);
+  line-height: 1.75;
+}
+.ex-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--t-xs);
+  color: var(--text-mute);
+  letter-spacing: .04em;
+}
+.ex-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ok);
+  flex: none;
+}
+.ex-body { display: grid; grid-template-columns: 1fr 1fr; }
+.ex-pane {
+  padding: 16px 18px;
+  overflow-x: auto;
+  min-width: 0;
+}
+.ex-pane + .ex-pane { border-left: 1px solid var(--line-soft); }
+.ex-label {
+  font-size: var(--t-xs);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-bottom: 10px;
+}
+.ex-pane pre {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--t-sm);
+  line-height: 1.75;
+  white-space: pre;
+  color: var(--text-dim);
+}
+.tok-verb { color: var(--accent); font-weight: 600; }
+.tok-key  { color: var(--text-mute); }
+.tok-str  { color: var(--ok); }
+.tok-num  { color: var(--high); }
+.tok-ok   { color: var(--ok); font-weight: 600; }
+
+.caret {
+  display: inline-block;
+  width: .55em; height: 1.05em;
+  background: var(--accent);
+  vertical-align: -.18em;
+  animation: blink 1.1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ============================================================
+   STATS
+   ============================================================ */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.stat { padding: 18px 20px; display: flex; flex-direction: column; gap: 3px; }
+.stat + .stat { border-left: 1px solid var(--line-soft); }
+.stat b {
+  font-size: var(--t-2xl);
+  font-weight: 600;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.stat span {
+  font-size: var(--t-xs);
+  color: var(--text-mute);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   FINDINGS: severity encodes real CVSS data, not decoration
+   ============================================================ */
+.sev-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-size: var(--t-xs);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--surface);
+  font-variant-numeric: tabular-nums;
+}
+.chip i { width: 6px; height: 6px; border-radius: 1px; flex: none; font-style: normal; }
+.chip[data-sev="critical"] i { background: var(--crit); }
+.chip[data-sev="high"] i     { background: var(--high); }
+.chip[data-sev="medium"] i   { background: var(--med); }
+
+.findings { display: flex; flex-direction: column; gap: 10px; }
+.finding {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  padding: 16px 20px 16px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  overflow: hidden;
+}
+.finding::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--line);
+}
+.finding[data-sev="critical"]::before { background: var(--crit); }
+.finding[data-sev="high"]::before     { background: var(--high); }
+.finding-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+}
+.finding h3 {
+  font-size: var(--t-md);
+  letter-spacing: -.01em;
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.finding .sev {
+  font-size: var(--t-xs);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.finding[data-sev="critical"] .sev { color: var(--crit); }
+.finding[data-sev="high"] .sev     { color: var(--high); }
+.finding p {
+  font-size: var(--t-sm);
+  color: var(--text-dim);
+  line-height: 1.65;
+  max-width: 74ch;
+}
+.finding .meta {
+  font-size: var(--t-xs);
+  color: var(--text-mute);
+  letter-spacing: .04em;
+}
+
+/* ============================================================
+   EXPERIENCE: monospace date gutter
+   ============================================================ */
+.roles { display: flex; flex-direction: column; }
+.role {
+  display: grid;
+  grid-template-columns: 172px minmax(0, 1fr);
+  gap: 28px;
+  padding: 26px 0;
+  border-top: 1px solid var(--line-soft);
+}
+.role:last-child { border-bottom: 1px solid var(--line-soft); }
+.role-when {
+  font-size: var(--t-xs);
+  color: var(--text-mute);
+  letter-spacing: .04em;
+  font-variant-numeric: tabular-nums;
+  padding-top: 3px;
+}
+.role-when b { display: block; color: var(--text-dim); font-weight: 400; }
+.role-body { display: flex; flex-direction: column; gap: 10px; }
+.role-body h3 { font-size: var(--t-lg); letter-spacing: -.02em; }
+.role-org { font-size: var(--t-sm); color: var(--accent); }
+.role-body ul { display: flex; flex-direction: column; gap: 8px; }
+.role-body li {
+  font-size: var(--t-sm);
+  color: var(--text-dim);
+  line-height: 1.65;
+  padding-left: 18px;
+  position: relative;
+  max-width: 76ch;
+}
+.role-body li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--accent-dim);
+}
+
+/* ============================================================
+   ARSENAL
+   ============================================================ */
+.arsenal { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+.kit {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.kit h3 {
+  font-size: var(--t-xs);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  font-weight: 500;
+}
+.kit ul { display: flex; flex-wrap: wrap; gap: 5px; }
+.kit li {
+  font-size: var(--t-sm);
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  color: var(--text-dim);
+}
+
+/* ============================================================
+   PROJECTS
+   ============================================================ */
+.projects { display: flex; flex-direction: column; gap: 12px; }
+.project {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.project-top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.project h3 { font-size: var(--t-lg); letter-spacing: -.02em; }
+.project .tag {
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
+  border-radius: 3px;
+  padding: 2px 7px;
+}
+.project p { font-size: var(--t-sm); color: var(--text-dim); line-height: 1.68; max-width: 76ch; }
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--t-xs);
+  color: var(--text-mute);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.pipeline span {
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface-2);
+}
+.pipeline em { font-style: normal; color: var(--accent-dim); }
+
+/* ============================================================
+   WRITING / LINKS
+   ============================================================ */
+.links { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.linkcard {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: border-color .15s, transform .15s;
+}
+.linkcard:hover { border-color: var(--accent-dim); transform: translateY(-1px); text-decoration: none; }
+.linkcard b { font-size: var(--t-md); color: var(--text); font-weight: 600; letter-spacing: -.01em; }
+.linkcard span { font-size: var(--t-sm); color: var(--text-mute); }
+.linkcard .handle { color: var(--accent); font-size: var(--t-sm); }
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+.contact-grid {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.crow {
+  display: grid;
+  grid-template-columns: 132px minmax(0,1fr);
+  gap: 16px;
+  padding: 13px 20px;
+  font-size: var(--t-sm);
+}
+.crow + .crow { border-top: 1px solid var(--line-soft); }
+.crow dt {
+  color: var(--text-mute);
+  font-size: var(--t-xs);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding-top: 2px;
+}
+.crow dd { margin: 0; color: var(--text-dim); word-break: break-word; }
+
+.avail {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid var(--accent-dim);
+  background: var(--accent-wash);
+  border-radius: 6px;
+  padding: 16px 20px;
+  font-size: var(--t-sm);
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+.avail b { color: var(--text); font-weight: 600; }
+.pulse {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ok);
+  flex: none;
+  margin-top: 7px;
+  box-shadow: 0 0 0 0 var(--ok);
+  animation: pulse 2.4s ease-out infinite;
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); }
+  70%  { box-shadow: 0 0 0 9px color-mix(in srgb, var(--ok) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 0%, transparent); }
+}
+
+footer {
+  border-top: 1px solid var(--line-soft);
+  padding-top: 20px;
+  font-size: var(--t-xs);
+  color: var(--text-mute);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   FIELD NOTE: long-form technical analysis
+   ============================================================ */
+.note { display: flex; flex-direction: column; gap: 22px; }
+.note p {
+  font-family: var(--prose);
+  font-size: var(--t-lg);
+  line-height: 1.62;
+  color: var(--text-dim);
+  max-width: 64ch;
+}
+.note h3 {
+  font-size: var(--t-xs);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  font-weight: 500;
+  margin-top: 6px;
+}
+
+.toctou {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.toctou-head {
+  padding: 9px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--t-xs);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.lane {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) 148px;
+  gap: 14px;
+  align-items: baseline;
+  padding: 11px 16px;
+  font-size: var(--t-sm);
+}
+.lane + .lane { border-top: 1px solid var(--line-soft); }
+.lane-id  { color: var(--text-mute); font-variant-numeric: tabular-nums; }
+.lane-act { color: var(--text-dim); }
+.lane-out {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ok);
+}
+.lane[data-state="deny"] .lane-out { color: var(--crit); }
+
+.callout {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--med);
+  background: var(--surface);
+  border-radius: 5px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.callout p {
+  font-family: var(--mono);
+  font-size: var(--t-sm);
+  line-height: 1.66;
+  color: var(--text-dim);
+  max-width: 76ch;
+}
+.callout b { color: var(--text); font-weight: 600; }
+
+/* ============================================================
+   REVEAL
+   ============================================================ */
+.reveal { opacity: 0; transform: translateY(10px); transition: opacity .55s ease, transform .55s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px 20px;
+    padding: 20px 24px;
+    border-right: none;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .rail nav ul { flex-direction: row; flex-wrap: wrap; gap: 2px; }
+  .rail-foot { display: none; }
+  .main { padding: 0 24px 80px; gap: 76px; }
+  .hero { padding-top: 44px; }
+  .ex-body { grid-template-columns: 1fr; }
+  .ex-pane + .ex-pane { border-left: none; border-top: 1px solid var(--line-soft); }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat:nth-child(3) { border-left: none; }
+  .stat:nth-child(n+3) { border-top: 1px solid var(--line-soft); }
+  .role { grid-template-columns: 1fr; gap: 10px; }
+  .arsenal, .links { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  :root { --t-3xl: 2.375rem; --t-2xl: 1.625rem; }
+  .stats { grid-template-columns: 1fr; }
+  .stat + .stat { border-left: none; border-top: 1px solid var(--line-soft); }
+  .crow { grid-template-columns: 1fr; gap: 3px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+}
+</style>
+
+<div class="shell">
+
+  <aside class="rail">
+    <div class="rail-mark">
+      <b>abhi sharma</b>
+      <span>offensive security</span>
+    </div>
+    <nav aria-label="Sections">
+      <ul>
+        <li><a href="#whoami">/whoami</a></li>
+        <li><a href="#impact">/impact</a></li>
+        <li><a href="#experience">/experience</a></li>
+        <li><a href="#arsenal">/arsenal</a></li>
+        <li><a href="#projects">/projects</a></li>
+        <li><a href="#research">/research</a></li>
+        <li><a href="#writing">/writing</a></li>
+        <li><a href="#contact">/contact</a></li>
+      </ul>
+    </nav>
+    <div class="rail-foot">
+      <a href="https://hackerone.com/root_a13h1" target="_blank" rel="noopener">hackerone</a>
+      <a href="https://medium.com/@a13h1" target="_blank" rel="noopener">medium</a>
+      <a href="https://x.com/a13h1_" target="_blank" rel="noopener">x</a>
+      <a href="https://www.linkedin.com/in/a13h1" target="_blank" rel="noopener">linkedin</a>
+      <span style="margin-top:8px">Indore, IN · UTC+5:30</span>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero">
+      <div>
+        <h1>Abhi Sharma<em>Offensive Security Engineer</em></h1>
+      </div>
+      <p class="hero-sub">
+        I break authorisation. Four years of commercial penetration testing, independent
+        consulting and coordinated disclosure, spent almost entirely on the class of bug
+        that scanners never find: the request that <em>should</em> have been denied.
+      </p>
+
+      <div class="exchange" aria-label="Example HTTP exchange">
+        <div class="ex-bar"><span class="ex-dot"></span> intercept · api.target · authorization test</div>
+        <div class="ex-body">
+          <div class="ex-pane">
+            <div class="ex-label">Request</div>
+<pre><span class="tok-verb">GET</span> /api/v2/orgs/8815/members <span class="tok-key">HTTP/2</span>
+<span class="tok-key">Host:</span> api.target.tld
+<span class="tok-key">Authorization:</span> Bearer &lt;viewer_role&gt;
+<span class="tok-key">X-Org-Context:</span> <span class="tok-num">8815</span>
+<span class="tok-key">Accept:</span> application/json</pre>
+          </div>
+          <div class="ex-pane">
+            <div class="ex-label">Response</div>
+<pre><span class="tok-key">HTTP/2</span> <span class="tok-ok">200 OK</span>
+{
+  <span class="tok-key">"name"</span>:  <span class="tok-str">"Abhi Sharma"</span>,
+  <span class="tok-key">"role"</span>:  <span class="tok-str">"offensive security engineer"</span>,
+  <span class="tok-key">"focus"</span>: [<span class="tok-str">"broken access control"</span>,
+             <span class="tok-str">"business logic"</span>,
+             <span class="tok-str">"api security"</span>],
+  <span class="tok-key">"years"</span>: <span class="tok-num">4</span>,
+  <span class="tok-key">"status"</span>: <span class="tok-str">"open to relocation"</span>
+}<span class="caret" aria-hidden="true"></span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats reveal">
+        <div class="stat"><b>500+</b><span>Confirmed vulns</span></div>
+        <div class="stat"><b>4,000+</b><span>H1 reputation</span></div>
+        <div class="stat"><b>100+</b><span>Valid H1 reports</span></div>
+        <div class="stat"><b>10+</b><span>Enterprise clients</span></div>
+      </div>
+    </section>
+
+    <!-- ===================== WHOAMI ===================== -->
+    <section class="sec reveal" id="whoami">
+      <div class="sec-head">
+        <div class="eyebrow">$ whoami</div>
+        <h2>Authorisation is where the money is</h2>
+      </div>
+      <p class="lede">
+        Most application security work rewards breadth. I went the other way. Injection and
+        XSS get caught by tooling and by the second reviewer; access control does not,
+        because a server has no way to know that a perfectly well-formed request came from
+        the wrong person. That is the gap I've built a career in: IDOR and BOLA, privilege
+        escalation, tenant boundaries, session handling, and the business logic that sits
+        underneath a checkout or a permissions model and quietly assumes everyone plays fair.
+      </p>
+      <p class="lede">
+        The work is manual by necessity: map the surface, enumerate every role, then replay
+        every state-changing request as every other identity. It is unglamorous and it finds
+        criticals. I'm currently adding infrastructure depth in Windows, Active Directory
+        and enterprise network testing through OSCP preparation.
+      </p>
+    </section>
+
+    <!-- ===================== IMPACT ===================== -->
+    <section class="sec reveal" id="impact">
+      <div class="sec-head">
+        <div class="eyebrow">Selected findings</div>
+        <h2>Representative impact</h2>
+      </div>
+      <div class="sev-key">
+        <span class="chip" data-sev="critical"><i></i>30+ Critical · client engagements</span>
+        <span class="chip" data-sev="high"><i></i>100+ High · client engagements</span>
+        <span class="chip" data-sev="medium"><i></i>500+ confirmed · all engagements</span>
+      </div>
+      <div class="findings">
+
+        <article class="finding" data-sev="critical">
+          <div class="finding-top">
+            <h3>Admin-panel takeover on a dealer commerce platform</h3>
+            <span class="sev">Critical</span>
+          </div>
+          <p>
+            Full administrative compromise of a dealership platform serving 1,000+ dealer
+            customers. Reported and remediated under engagement; the platform was
+            subsequently acquired for CAD $105M.
+          </p>
+          <p class="meta">Broken access control · privilege escalation</p>
+        </article>
+
+        <article class="finding" data-sev="critical">
+          <div class="finding-top">
+            <h3>PHI exposure via authorisation flaw on a telehealth platform</h3>
+            <span class="sev">Critical</span>
+          </div>
+          <p>
+            Critical authorisation defects exposing protected health information on a
+            telehealth service used by over one million college students. Validated with
+            the engineering team and re-tested through remediation.
+          </p>
+          <p class="meta">Broken access control · PHI · healthcare</p>
+        </article>
+
+        <article class="finding" data-sev="critical">
+          <div class="finding-top">
+            <h3>Unauthenticated admin panel on a workflow automation SaaS</h3>
+            <span class="sev">Critical</span>
+          </div>
+          <p>
+            A publicly reachable administrative interface requiring no authentication on a
+            workflow-automation platform with a 1M+ user base.
+          </p>
+          <p class="meta">Missing authentication · exposed surface</p>
+        </article>
+
+        <article class="finding" data-sev="critical">
+          <div class="finding-top">
+            <h3>Pre-auth SQL injection via a registration date-of-birth field</h3>
+            <span class="sev">Critical</span>
+          </div>
+          <p>
+            The public sign-up form on a 2M-user community platform passed its date-of-birth
+            parameter into a query unsanitised. No account and no session were needed to
+            reach it, because the endpoint sits in front of authentication by design. Database
+            data extraction was confirmed during validation, then reported to the founder
+            and re-tested after the fix.
+          </p>
+          <p class="meta">SQL injection · unauthenticated · registration flow</p>
+        </article>
+
+        <article class="finding" data-sev="critical">
+          <div class="finding-top">
+            <h3>Viewer on one product to Administrator across all of them</h3>
+            <span class="sev">Critical</span>
+          </div>
+          <p>
+            On a SaaS platform serving 20,000+ organizational clients, a user holding the
+            lowest-tier <em>Viewer</em> role on a single product could escalate to
+            Administrator across every product on the platform. The escalation crossed a
+            product boundary the permission model assumed was solid. Reported with CVSS
+            scoring under NDA and re-validated with the client's engineering team after
+            remediation.
+          </p>
+          <p class="meta">Privilege escalation · broken access control · multi-tenant SaaS</p>
+        </article>
+
+        <article class="finding" data-sev="high">
+          <div class="finding-top">
+            <h3>Cross-tenant BOLA on a production GraphQL/REST API</h3>
+            <span class="sev">High</span>
+          </div>
+          <p>
+            Confirmed, CVSS-scored Broken Object Level Authorization allowing access across
+            tenant boundaries. Surfaced by my own agentic research framework, then
+            independently reproduced by hand before disclosure.
+          </p>
+          <p class="meta">BOLA · multi-tenancy · GraphQL</p>
+        </article>
+
+
+        <article class="finding" data-sev="high">
+          <div class="finding-top">
+            <h3>$2,150 bounty: viewer-to-admin escalation via API</h3>
+            <span class="sev">High</span>
+          </div>
+          <p>
+            Critical authorisation bypass escalating a read-only viewer to full administrator
+            through an unguarded API path. Written up publicly with the disclosed bounty
+            amount.
+          </p>
+          <p class="meta">HackerOne · disclosed · <a href="https://medium.com/@a13h1" target="_blank" rel="noopener">writeup</a></p>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ===================== EXPERIENCE ===================== -->
+    <section class="sec reveal" id="experience">
+      <div class="sec-head">
+        <div class="eyebrow">Engagement history</div>
+        <h2>Experience</h2>
+      </div>
+      <div class="roles">
+
+        <article class="role">
+          <div class="role-when"><b>Oct 2022</b> – present</div>
+          <div class="role-body">
+            <h3>Freelance Cybersecurity Consultant</h3>
+            <div class="role-org">Independent · multiple enterprise clients (NDA)</div>
+            <ul>
+              <li>Authenticated and unauthenticated penetration tests across 10+ enterprise
+                  clients' web applications and REST APIs, owned end to end from outreach
+                  through delivery and remediation.</li>
+              <li>300+ confirmed vulnerabilities including 30+ Critical and 100+ High: SQL
+                  injection, XSS, IDOR/broken access control, SSRF, CSRF, privilege
+                  escalation and business logic flaws.</li>
+              <li>Sectors covered include healthcare, HR-tech and payroll, scheduling,
+                  observability and monitoring, CDN/edge infrastructure, scientific
+                  computing, subscription billing and cloud communications (UCaaS).</li>
+              <li>Collectively these platforms serve 3M+ end users and support 50,000+
+                  organizational clients, safeguarding sensitive customer, health and
+                  business data, and reducing attack surface at scale.</li>
+              <li>Advise client engineering teams on secure coding practice and the
+                  vulnerability patterns worth watching for during development, shifting
+                  security left rather than relying on point-in-time testing.</li>
+              <li>Author CVSS-scored reports with remediation guidance, then work alongside
+                  client engineering through fix and re-validation cycles.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="role">
+          <div class="role-when"><b>Feb 2022</b> – Aug 2022</div>
+          <div class="role-body">
+            <h3>Cyber Security Consultant</h3>
+            <div class="role-org">Certree (Ubertal India Pvt. Ltd.)</div>
+            <ul>
+              <li>Application security assessment of a zero-trust document verification and
+                  storage platform holding sensitive personal and employment records.</li>
+              <li>38 confirmed vulnerabilities: 13 XSS, 10 broken access control, 7 IDOR,
+                  3 SSRF via PDF rendering, 3 privilege escalation, 2 HTML injection, plus
+                  session-management findings.</li>
+              <li>Manual and automated testing across authentication and session-handling
+                  flows with Burp Suite Professional and OWASP ZAP.</li>
+              <li>Formal recommendation from the CTO for penetration testing and security
+                  consulting contributions.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="role">
+          <div class="role-when"><b>Jun 2020</b> – Jan 2022</div>
+          <div class="role-body">
+            <h3>Independent Cyber Security Consultant</h3>
+            <div class="role-org">Writing.com</div>
+            <ul>
+              <li>Continuous security coverage for a creative-writing community platform with
+                  2M+ registered users.</li>
+              <li>171 confirmed vulnerabilities reported to the Founder: 57 XSS, 38 business
+                  logic, 33 IDOR/broken access control, 13 SQL injection, 10 CSRF, 8
+                  file-handling, 7 information disclosure/LFI, 4 open redirect, 1 high-severity
+                  SSRF.</li>
+              <li>Tracked every report through to resolution with re-testing across multiple
+                  engagement cycles.</li>
+              <li>Formal recommendation from the Founder for consulting and technical
+                  contributions.</li>
+            </ul>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ===================== ARSENAL ===================== -->
+    <section class="sec reveal" id="arsenal">
+      <div class="sec-head">
+        <div class="eyebrow">Config / capabilities</div>
+        <h2>Arsenal</h2>
+      </div>
+      <div class="arsenal">
+        <div class="kit">
+          <h3>Offensive security</h3>
+          <ul>
+            <li>Web app pentesting</li><li>API security testing</li>
+            <li>Broken access control</li><li>Business logic</li>
+            <li>AuthN / AuthZ</li><li>Session management</li>
+            <li>OWASP Top 10</li><li>CVSS scoring</li>
+          </ul>
+        </div>
+        <div class="kit">
+          <h3>Web tooling</h3>
+          <ul>
+            <li>Burp Suite Pro</li><li>OWASP ZAP</li>
+            <li>SQLMap</li><li>XSStrike</li>
+          </ul>
+        </div>
+        <div class="kit">
+          <h3>Reconnaissance</h3>
+          <ul>
+            <li>Katana</li><li>httpx</li><li>nuclei</li><li>ffuf</li>
+            <li>Amass</li><li>Subfinder</li><li>Assetfinder</li>
+            <li>LinkFinder</li><li>SecretFinder</li><li>gau</li><li>waybackurls</li>
+          </ul>
+        </div>
+        <div class="kit">
+          <h3>Infrastructure &amp; network</h3>
+          <ul>
+            <li>Nmap</li><li>Metasploit</li><li>Wireshark</li>
+            <li>Linux</li><li>Windows</li><li>Active Directory</li>
+            <li>SMB</li><li>Kerberos</li><li>TCP/IP</li>
+          </ul>
+        </div>
+        <div class="kit">
+          <h3>Programming</h3>
+          <ul><li>Python</li><li>Bash</li><li>JavaScript</li></ul>
+        </div>
+        <div class="kit">
+          <h3>AI / agentic tooling</h3>
+          <ul>
+            <li>ReAct agent design</li><li>Tool orchestration</li>
+            <li>Evidence / critic pipelines</li><li>LLM-assisted triage</li>
+          </ul>
+        </div>
+      </div>
+      <div class="contact-grid">
+        <dl class="crow"><dt>Certification</dt><dd>Offensive Security Certified Professional (OSCP), in preparation</dd></dl>
+        <dl class="crow"><dt>Education</dt><dd>B.Tech, Computer Science &amp; Engineering · Sri Aurobindo Institute of Technology, 2022</dd></dl>
+        <dl class="crow"><dt>Languages</dt><dd>English, Hindi</dd></dl>
+      </div>
+    </section>
+
+    <!-- ===================== PROJECTS ===================== -->
+    <section class="sec reveal" id="projects">
+      <div class="sec-head">
+        <div class="eyebrow">Built</div>
+        <h2>Projects</h2>
+      </div>
+      <div class="projects">
+
+        <article class="project">
+          <div class="project-top">
+            <h3>Hackbot</h3>
+            <span class="tag">Agentic vuln research</span>
+          </div>
+          <p>
+            A Claude-powered autonomous pentesting agent built around a ReAct loop with a
+            hard evidence-chain discipline: observation → evidence → hypothesis →
+            confidence → next action. A critic module blocks unconfirmed findings before
+            they can be reported: it rejects IDOR claims without cross-account proof, SQLi
+            without timing or error evidence, and SSRF without out-of-band interaction.
+          </p>
+          <p>
+            Carries 25 modular methodology documents spanning IDOR/BOLA, SSRF, GraphQL
+            authorization, deserialisation, race conditions, supply chain, cloud
+            infrastructure, and AI/agent security including prompt injection and MCP trust
+            boundaries. Run against live bug bounty targets and cloned open-source
+            repositories; produced a confirmed, CVSS-scored cross-tenant BOLA on a production
+            SaaS API, independently reproduced before disclosure.
+          </p>
+          <div class="pipeline">
+            <span>Reason</span><em>→</em><span>Execute</span><em>→</em><span>Observe</span>
+            <em>→</em><span>Reflect</span><em>→</em><span>Critic</span>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-top">
+            <h3>Automated Reconnaissance Framework</h3>
+            <span class="tag">Recon automation</span>
+          </div>
+          <p>
+            A maintained pipeline chaining open-source offensive tooling into a single
+            attack-surface mapping workflow: subdomain enumeration, HTTP probing, JavaScript
+            analysis, endpoint discovery, technology fingerprinting and historical URL
+            collection.
+          </p>
+          <div class="pipeline">
+            <span>Enumerate</span><em>→</em><span>Probe</span><em>→</em><span>JS analysis</span>
+            <em>→</em><span>Endpoints</span><em>→</em><span>Fingerprint</span>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ===================== RESEARCH ===================== -->
+    <section class="sec reveal" id="research">
+      <div class="sec-head">
+        <div class="eyebrow">Field note</div>
+        <h2>Why compute platforms break differently</h2>
+      </div>
+
+      <div class="note">
+        <p>
+          On most SaaS products a plan limit is a commercial boundary. Bypass it and you
+          get a feature you didn't pay for. On a compute platform the limit <em>is</em> the
+          product. Behind it sits a finite pool of real machines, shared by every tenant,
+          handed out by a scheduler with no opinion about who deserves them. Break that
+          limit and you aren't taking a feature. You're taking the platform's inventory
+          away from everyone else on it.
+        </p>
+
+        <h3>The bug</h3>
+        <p>
+          The target sold scheduled access to HPC and GPU nodes for scientific computing.
+          Free-tier accounts were capped at one running job and ten nodes. Both caps were
+          enforced in the interface. The API underneath enforced them too, but per
+          request, against a counter it read and then acted on.
+        </p>
+
+        <div class="exchange" aria-label="Tampered job creation request">
+          <div class="ex-bar"><span class="ex-dot"></span> POST /api/v1/jobs · free tier · cap = 1 job / 10 nodes</div>
+          <div class="ex-body" style="grid-template-columns:1fr">
+            <div class="ex-pane">
+<pre><span class="tok-verb">POST</span> /api/v1/jobs <span class="tok-key">HTTP/2</span>
+<span class="tok-key">Content-Type:</span> application/json
+
+{ <span class="tok-key">"node_count"</span>: <span class="tok-num">1000</span> }   <span class="tok-key">← sent x200, concurrently</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <h3>Why every request passed</h3>
+        <div class="toctou">
+          <div class="toctou-head">Concurrent arrivals · one shared counter</div>
+          <div class="lane"><span class="lane-id">req #1</span><span class="lane-act">reads <code>jobs_running</code></span><span class="lane-out">0 → accept</span></div>
+          <div class="lane"><span class="lane-id">req #2</span><span class="lane-act">reads <code>jobs_running</code></span><span class="lane-out">0 → accept</span></div>
+          <div class="lane"><span class="lane-id">req #3</span><span class="lane-act">reads <code>jobs_running</code></span><span class="lane-out">0 → accept</span></div>
+          <div class="lane"><span class="lane-id">…</span><span class="lane-act">all read before any writes</span><span class="lane-out">0 → accept</span></div>
+          <div class="lane" data-state="deny"><span class="lane-id">expected</span><span class="lane-act">second request sees the first</span><span class="lane-out">1 → reject</span></div>
+        </div>
+        <p>
+          Fired in sequence, request two would have been refused. Fired together, every one
+          of them read the same zero. Time-of-check to time-of-use: the validation logic was
+          correct, and the window between checking and committing was unguarded. The
+          <code>node_count</code> tampering rode along on all of them: ten became a
+          thousand, two hundred times over.
+        </p>
+
+        <h3>What actually broke</h3>
+        <p>
+          Not free compute. An outage. The scheduler accepted hundreds of oversized jobs it
+          could never place, queued work stopped moving, applications failed to launch, and
+          the platform returned 500s to every user until it was manually rebooted. A quota
+          bug on a compute product is an availability bug for everyone sharing the pool.
+          The blast radius has nothing to do with the account that triggered it.
+        </p>
+
+        <h3>Why this class keeps getting more expensive</h3>
+        <p>
+          Every AI product shipping right now is a compute broker wearing a different
+          interface: GPU-hour budgets, token allowances, inference concurrency caps, agent
+          job queues, sandbox spawn limits. In each of them the quota is simultaneously the
+          billing boundary and the capacity boundary, which makes one unguarded counter both
+          a revenue leak and a denial of service. The pattern spreads because the naive
+          implementation (read the count, compare it, insert the row) is what almost
+          everyone writes first, and it passes every test that doesn't run two requests at
+          once.
+        </p>
+
+        <div class="callout">
+          <p><b>Where the check belongs.</b> Enforcement has to live where the state
+          lives: an atomic increment, a conditional update, a unique constraint on the
+          reservation. Anything that makes the datastore refuse the second write rather
+          than trusting application code to have counted correctly. Rate limiting in front
+          of the endpoint narrows the window; it does not close it.</p>
+          <p>Full writeup:
+            <a href="https://infosecwriteups.com/how-a-simple-race-condition-vulnerability-down-a-saas-global-platform-8093528b403f" target="_blank" rel="noopener">How a simple race condition took down a SaaS global platform</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== WRITING ===================== -->
+    <section class="sec reveal" id="writing">
+      <div class="sec-head">
+        <div class="eyebrow">Public work</div>
+        <h2>Writing &amp; community</h2>
+      </div>
+      <div class="links">
+        <a class="linkcard" href="https://medium.com/@a13h1" target="_blank" rel="noopener">
+          <b>Medium</b>
+          <span class="handle">@a13h1</span>
+          <span>Near-weekly technical writeups, published with disclosed bounty amounts.</span>
+        </a>
+        <a class="linkcard" href="https://hackerone.com/root_a13h1" target="_blank" rel="noopener">
+          <b>HackerOne</b>
+          <span class="handle">root_a13h1</span>
+          <span>4,000+ reputation · 100+ valid reports submitted and resolved.</span>
+        </a>
+        <a class="linkcard" href="https://x.com/a13h1_" target="_blank" rel="noopener">
+          <b>X</b>
+          <span class="handle">@a13h1_</span>
+          <span>Bug bounty methodology and testing notes since 2016.</span>
+        </a>
+        <div class="linkcard">
+          <b>BSides Goa</b>
+          <span class="handle">Volunteer</span>
+          <span>Community security conference.</span>
+        </div>
+      </div>
+
+      <div class="eyebrow" style="margin-top:8px">Selected writeups</div>
+      <div class="contact-grid">
+        <dl class="crow">
+          <dt>Race condition</dt>
+          <dd><a href="https://infosecwriteups.com/how-a-simple-race-condition-vulnerability-down-a-saas-global-platform-8093528b403f" target="_blank" rel="noopener">How a simple race condition took down a SaaS global platform</a></dd>
+        </dl>
+        <dl class="crow">
+          <dt>$1,500</dt>
+          <dd><a href="https://infosecwriteups.com/1-500-bounty-business-logic-flaw-in-project-secrets-management-4b985175071e" target="_blank" rel="noopener">Business logic flaw in project secrets management</a></dd>
+        </dl>
+        <dl class="crow">
+          <dt>$800</dt>
+          <dd><a href="https://infosecwriteups.com/800-bounty-privilege-escalation-via-api-from-scheduler-to-team-admin-810bb8401a0f" target="_blank" rel="noopener">Privilege escalation via API — scheduler to team admin</a></dd>
+        </dl>
+        <dl class="crow">
+          <dt>$500</dt>
+          <dd><a href="https://infosecwriteups.com/500-mfa-bypass-by-race-condition-176421462902" target="_blank" rel="noopener">MFA bypass by race condition</a></dd>
+        </dl>
+        <dl class="crow">
+          <dt>Race condition</dt>
+          <dd><a href="https://medium.com/@a13h1/millionaire-in-minutes-uncovering-the-race-condition-exploit-df4c191aa007" target="_blank" rel="noopener">Millionaire in minutes — uncovering the race condition exploit</a></dd>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ===================== CONTACT ===================== -->
+    <section class="sec reveal" id="contact">
+      <div class="sec-head">
+        <div class="eyebrow">$ contact</div>
+        <h2>Get in touch</h2>
+      </div>
+
+      <div class="avail">
+        <span class="pulse" aria-hidden="true"></span>
+        <p>
+          <b>Open to offensive security roles</b>, remote or relocation with employer
+          sponsorship. Actively considering the UK, EU/EEA, UAE, Australia, New Zealand and
+          the US, alongside India-based remote positions.
+        </p>
+      </div>
+
+      <div class="contact-grid">
+        <dl class="crow"><dt>Email</dt><dd><a href="mailto:abhis9102@gmail.com">abhis9102@gmail.com</a></dd></dl>
+        <dl class="crow"><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/a13h1" target="_blank" rel="noopener">linkedin.com/in/a13h1</a></dd></dl>
+        <dl class="crow"><dt>HackerOne</dt><dd><a href="https://hackerone.com/root_a13h1" target="_blank" rel="noopener">hackerone.com/root_a13h1</a></dd></dl>
+        <dl class="crow"><dt>Medium</dt><dd><a href="https://medium.com/@a13h1" target="_blank" rel="noopener">medium.com/@a13h1</a></dd></dl>
+        <dl class="crow"><dt>X</dt><dd><a href="https://x.com/a13h1_" target="_blank" rel="noopener">x.com/a13h1_</a></dd></dl>
+        <dl class="crow"><dt>Location</dt><dd>Indore, Madhya Pradesh, India · UTC+5:30</dd></dl>
+      </div>
+
+      <footer>
+        <span>© 2026 Abhi Sharma</span>
+        <span>Built as a static page. No trackers, no third-party requests.</span>
+      </footer>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* scroll reveal */
+  var targets = document.querySelectorAll(".reveal");
+  if (reduce || !("IntersectionObserver" in window)) {
+    targets.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { rootMargin: "0px 0px -12% 0px", threshold: 0.05 });
+    targets.forEach(function (el) { io.observe(el); });
+  }
+
+  /* active section in rail */
+  var links = Array.prototype.slice.call(document.querySelectorAll(".rail nav a"));
+  var sections = links
+    .map(function (a) { return document.querySelector(a.getAttribute("href")); })
+    .filter(Boolean);
+
+  if ("IntersectionObserver" in window && sections.length) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) {
+          a.setAttribute("aria-current", a.getAttribute("href") === "#" + e.target.id ? "true" : "false");
+        });
+      });
+    }, { rootMargin: "-15% 0px -70% 0px", threshold: 0 });
+    sections.forEach(function (s) { spy.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>
