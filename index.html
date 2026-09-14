@@ -768,8 +768,8 @@ footer {
     <nav aria-label="Sections">
       <ul>
         <li><a href="#whoami">/whoami</a></li>
-        <li><a href="#impact">/impact</a></li>
         <li><a href="#experience">/experience</a></li>
+        <li><a href="#impact">/impact</a></li>
         <li><a href="#arsenal">/arsenal</a></li>
         <li><a href="#projects">/projects</a></li>
         <li><a href="#research">/research</a></li>
@@ -838,9 +838,11 @@ footer {
         </a>
       </div>
       <p class="hero-sub">
-        I break authorisation. Four years of commercial penetration testing, independent
-        consulting and coordinated disclosure, spent almost entirely on the class of bug
-        that scanners never find: the request that <em>should</em> have been denied.
+        Offensive Security Engineer specialising in Web Application Security, API Security
+        and Vulnerability Research. I break authorisation — four years of commercial
+        penetration testing, independent consulting and coordinated disclosure, spent
+        almost entirely on the class of bug that scanners never find: the request that
+        <em>should</em> have been denied.
       </p>
 
       <div class="exchange" aria-label="Example HTTP exchange">
@@ -898,79 +900,6 @@ footer {
         criticals. I'm currently adding infrastructure depth in Windows, Active Directory
         and enterprise network testing through OSCP preparation.
       </p>
-    </section>
-
-    <!-- ===================== IMPACT ===================== -->
-    <section class="sec reveal" id="impact">
-      <div class="sec-head">
-        <div class="eyebrow">Selected findings</div>
-        <h2>Representative impact</h2>
-      </div>
-      <div class="sev-key">
-        <span class="chip" data-sev="critical"><i></i>38 confirmed · Certree</span>
-        <span class="chip" data-sev="critical"><i></i>171 confirmed · Writing.com</span>
-        <span class="chip" data-sev="high"><i></i>CVSS-scored · Hackbot</span>
-      </div>
-      <div class="findings">
-
-        <article class="finding" data-sev="critical">
-          <div class="finding-top">
-            <h3>Pre-auth SQL injection via a registration date-of-birth field</h3>
-            <span class="sev">Critical</span>
-          </div>
-          <p>
-            The public sign-up form on a 2M-user community platform passed its date-of-birth
-            parameter into a query unsanitised. No account and no session were needed to
-            reach it, because the endpoint sits in front of authentication by design. Database
-            data extraction was confirmed during validation, then reported to the founder
-            and re-tested after the fix.
-          </p>
-          <p class="meta">SQL injection · unauthenticated · registration flow</p>
-        </article>
-
-        <article class="finding" data-sev="critical">
-          <div class="finding-top">
-            <h3>38 confirmed vulnerabilities on a zero-trust document platform</h3>
-            <span class="sev">Critical</span>
-          </div>
-          <p>
-            Application security assessment of a document verification and storage platform
-            handling sensitive personal and employment records: 13 XSS, 10 broken access
-            control, 7 IDOR, 3 SSRF via PDF rendering, 3 privilege escalation, 2 HTML
-            injection, plus session-management findings. Retested across remediation cycles
-            to confirm every fix held.
-          </p>
-          <p class="meta">Broken access control · IDOR · SSRF · Certree</p>
-        </article>
-
-        <article class="finding" data-sev="high">
-          <div class="finding-top">
-            <h3>Cross-tenant BOLA on a production GraphQL/REST API</h3>
-            <span class="sev">High</span>
-          </div>
-          <p>
-            Confirmed, CVSS-scored Broken Object Level Authorization allowing access across
-            tenant boundaries. Surfaced by my own agentic research framework, then
-            independently reproduced by hand before disclosure.
-          </p>
-          <p class="meta">BOLA · multi-tenancy · GraphQL</p>
-        </article>
-
-
-        <article class="finding" data-sev="high">
-          <div class="finding-top">
-            <h3>$2,150 bounty: viewer-to-admin escalation via API</h3>
-            <span class="sev">High</span>
-          </div>
-          <p>
-            Critical authorisation bypass escalating a read-only viewer to full administrator
-            through an unguarded API path. Written up publicly with the disclosed bounty
-            amount.
-          </p>
-          <p class="meta">HackerOne · disclosed · <a href="https://medium.com/@a13h1" target="_blank" rel="noopener">writeup</a></p>
-        </article>
-
-      </div>
     </section>
 
     <!-- ===================== EXPERIENCE ===================== -->
@@ -1046,6 +975,79 @@ footer {
                   contributions.</li>
             </ul>
           </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ===================== IMPACT ===================== -->
+    <section class="sec reveal" id="impact">
+      <div class="sec-head">
+        <div class="eyebrow">Selected findings</div>
+        <h2>Representative impact</h2>
+      </div>
+      <div class="sev-key">
+        <span class="chip" data-sev="critical"><i></i>38 confirmed · Certree</span>
+        <span class="chip" data-sev="critical"><i></i>171 confirmed · Writing.com</span>
+        <span class="chip" data-sev="high"><i></i>CVSS-scored · Hackbot</span>
+      </div>
+      <div class="findings">
+
+        <article class="finding" data-sev="critical">
+          <div class="finding-top">
+            <h3>Pre-auth SQL injection via a registration date-of-birth field</h3>
+            <span class="sev">Critical</span>
+          </div>
+          <p>
+            The public sign-up form on a 2M-user community platform passed its date-of-birth
+            parameter into a query unsanitised. No account and no session were needed to
+            reach it, because the endpoint sits in front of authentication by design. Database
+            data extraction was confirmed during validation, then reported to the founder
+            and re-tested after the fix.
+          </p>
+          <p class="meta">SQL injection · unauthenticated · registration flow</p>
+        </article>
+
+        <article class="finding" data-sev="critical">
+          <div class="finding-top">
+            <h3>38 confirmed vulnerabilities on a zero-trust document platform</h3>
+            <span class="sev">Critical</span>
+          </div>
+          <p>
+            Application security assessment of a document verification and storage platform
+            handling sensitive personal and employment records: 13 XSS, 10 broken access
+            control, 7 IDOR, 3 SSRF via PDF rendering, 3 privilege escalation, 2 HTML
+            injection, plus session-management findings. Retested across remediation cycles
+            to confirm every fix held.
+          </p>
+          <p class="meta">Broken access control · IDOR · SSRF · Certree</p>
+        </article>
+
+        <article class="finding" data-sev="high">
+          <div class="finding-top">
+            <h3>Cross-tenant BOLA on a production GraphQL/REST API</h3>
+            <span class="sev">High</span>
+          </div>
+          <p>
+            Confirmed, CVSS-scored Broken Object Level Authorization allowing access across
+            tenant boundaries. Surfaced by my own agentic research framework, then
+            independently reproduced by hand before disclosure.
+          </p>
+          <p class="meta">BOLA · multi-tenancy · GraphQL</p>
+        </article>
+
+
+        <article class="finding" data-sev="high">
+          <div class="finding-top">
+            <h3>$2,150 bounty: viewer-to-admin escalation via API</h3>
+            <span class="sev">High</span>
+          </div>
+          <p>
+            Critical authorisation bypass escalating a read-only viewer to full administrator
+            through an unguarded API path. Written up publicly with the disclosed bounty
+            amount.
+          </p>
+          <p class="meta">HackerOne · disclosed · <a href="https://medium.com/@a13h1" target="_blank" rel="noopener">writeup</a></p>
         </article>
 
       </div>
