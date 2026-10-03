@@ -182,6 +182,12 @@ code, kbd { font-family: var(--mono); }
 .rail-loc { margin-top: 10px; }
 
 /* CV download */
+.hero-cta-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 .dl {
   display: inline-flex;
   align-items: center;
@@ -199,6 +205,16 @@ code, kbd { font-family: var(--mono); }
 .dl:hover { background: var(--surface-2); border-color: var(--accent); text-decoration: none; }
 .dl svg { width: 15px; height: 15px; flex: none; fill: currentColor; }
 .dl span { color: var(--text-mute); }
+.dl-ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--text-dim);
+}
+.dl-ghost:hover {
+  background: var(--surface-2);
+  border-color: var(--line-bright);
+  color: var(--text);
+}
 
 .main {
   min-width: 0;
@@ -249,6 +265,7 @@ code, kbd { font-family: var(--mono); }
   gap: 28px;
   flex-wrap: wrap;
 }
+.hero-head .hero-cta-group,
 .hero-head .dl { margin-top: 10px; }
 .hero h1 {
   font-size: var(--t-3xl);
@@ -775,6 +792,7 @@ footer {
         <li><a href="#research">/research</a></li>
         <li><a href="#writing">/writing</a></li>
         <li><a href="#contact">/contact</a></li>
+        <li><a href="Abhi-Sharma-CV.pdf?v=20261003-ats" target="_blank" rel="noopener">/resume ↗</a></li>
       </ul>
     </nav>
     <div class="rail-foot">
@@ -828,14 +846,22 @@ footer {
     <section class="hero">
       <div class="hero-head">
         <h1>Abhi Sharma<em>Offensive Security &amp; AppSec Engineer</em></h1>
-        <a class="dl" href="Abhi-Sharma-CV.pdf?v=20261003" download>
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M12 3a1 1 0 0 1 1 1v9.6l3.3-3.3a1 1 0 0 1 1.4 1.4l-5 5a1 1 0 0
-                     1-1.4 0l-5-5a1 1 0 1 1 1.4-1.4L11 13.6V4a1 1 0 0 1 1-1zM4
-                     19a1 1 0 0 1 1-1h14a1 1 0 0 1 0 2H5a1 1 0 0 1-1-1z"/>
-          </svg>
-          Download CV <span>PDF</span>
-        </a>
+        <div class="hero-cta-group">
+          <a class="dl" href="Abhi-Sharma-CV.pdf?v=20261003-ats" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+            </svg>
+            View Resume <span>PDF</span>
+          </a>
+          <a class="dl dl-ghost" href="Abhi-Sharma-Resume.pdf?v=20261003-ats" download>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 3a1 1 0 0 1 1 1v9.6l3.3-3.3a1 1 0 0 1 1.4 1.4l-5 5a1 1 0 0
+                       1-1.4 0l-5-5a1 1 0 1 1 1.4-1.4L11 13.6V4a1 1 0 0 1 1-1zM4
+                       19a1 1 0 0 1 1-1h14a1 1 0 0 1 0 2H5a1 1 0 0 1-1-1z"/>
+            </svg>
+            Download
+          </a>
+        </div>
       </div>
       <p class="hero-sub">
         Offensive Security and Application Security Engineer with 4+ years of experience across AppSec,
@@ -923,7 +949,7 @@ footer {
               <li>Conduct STRIDE threat modeling across applications and APIs to identify attack vectors, trust-boundary violations, and authentication/authorization weaknesses prior to feature rollout.</li>
               <li>Analyze AWS security configurations (EC2, S3, VPC, IAM, Lambda, RDS, CloudWatch) for IAM privilege escalation, storage exposure, role assumption, and SSRF-to-IMDS attack paths.</li>
               <li>Delivered penetration testing across enterprise web applications, REST/GraphQL APIs, and AWS cloud environments for clients in fintech, automotive/dealer marketplaces, telehealth, workflow-automation and enterprise SaaS, creative-writing communities, ministry/church management, scientific computing, monitoring and observability, HR-tech, scheduling, payroll, CDN/edge infrastructure, fintech/subscription-billing, and cloud communications (UCaaS).</li>
-              <li>Develop end-to-end proof-of-concepts (PoCs) to validate complex attack paths and demonstrate practical exploitability across Broken Access Control, IDOR/BOLA, SQLi, XSS, SSRF, CSRF, privilege escalation, and business logic flaws.</li>
+              <li>Develop end-to-end proof-of-concepts (PoCs) to validate complex attack paths and demonstrate practical exploitability across Broken Access Control, IDOR/BOLA, SQLi (SQL Injection), XSS, SSRF, CSRF, privilege escalation, and business logic flaws.</li>
               <li>Drive developer-centric AppSec workflows through Semgrep secure code reviews, tracing findings to source code to confirm exploitability, and correlating SAST/SCA with DAST results to triage SARIF reports and eliminate false positives.</li>
               <li>Deploy proprietary automation tooling, including an AI-native secret scanner (LLM-based noise filtering) and reconnaissance pipelines, to scale attack-surface discovery and credential triage across client engagements.</li>
               <li>Authored developer-first secure coding guidelines and proactive architectural guardrails for recurring vulnerability classes (XSS, IDOR, business logic, auth flaws), reducing recurrence in downstream testing by 90%.</li>
@@ -1339,7 +1365,7 @@ footer {
       </div>
 
       <div class="contact-grid">
-        <dl class="crow"><dt>CV</dt><dd><a href="Abhi-Sharma-CV.pdf?v=20261003" download>Abhi-Sharma-CV.pdf</a> · 2 pages</dd></dl>
+        <dl class="crow"><dt>Resume / CV</dt><dd><a href="Abhi-Sharma-CV.pdf?v=20261003-ats" target="_blank" rel="noopener">View PDF</a> · <a href="Abhi-Sharma-Resume.pdf?v=20261003-ats" download>Download</a> · 2 pages</dd></dl>
         <dl class="crow"><dt>Email</dt><dd><a href="mailto:abhis9102@gmail.com">abhis9102@gmail.com</a></dd></dl>
         <dl class="crow"><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/a13h1" target="_blank" rel="noopener">linkedin.com/in/a13h1</a></dd></dl>
         <dl class="crow"><dt>HackerOne</dt><dd><a href="https://hackerone.com/root_a13h1" target="_blank" rel="noopener">hackerone.com/root_a13h1</a></dd></dl>
